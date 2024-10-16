@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objs as go  # Use graph_objs for custom traces
+import pycountry
 from nltk.tokenize import sent_tokenize
 
 # Configure the Streamlit page
@@ -31,8 +33,7 @@ biden_df = biden_df.drop(columns= ['tweet_id', 'lat', 'long', 'continent'])
 
 # combine 'United States of America' and 'United States'
 country_mapping = {
-    'United States of America': 'USA',
-    'United States': 'USA'
+    'United States of America': 'United States',
 }
 trump_df['country'] = trump_df['country'].replace(country_mapping)
 biden_df['country'] = biden_df['country'].replace(country_mapping)
@@ -55,8 +56,8 @@ trump_tweet_percentage = (trump_tweet_count / total_tweet_count) * 100
 biden_tweet_percentage = (biden_tweet_count / total_tweet_count) * 100
 
 # Create a new DataFrame with only USA data
-usa_trump_df = trump_df[trump_df['country'] == 'USA']
-usa_biden_df = biden_df[biden_df['country'] == 'USA']
+usa_trump_df = trump_df[trump_df['country'] == 'United States']
+usa_biden_df = biden_df[biden_df['country'] == 'United States']
 
 # Count the number of tweets for each candidate (USA)
 usa_trump_tweet_count = usa_trump_df.shape[0]
@@ -66,6 +67,88 @@ usa_total_tweet_count = usa_trump_tweet_count + usa_biden_tweet_count
 # Percentage of Total Tweets (USA)
 usa_trump_tweet_percentage = (usa_trump_tweet_count / usa_total_tweet_count) * 100
 usa_biden_tweet_percentage = (usa_biden_tweet_count / usa_total_tweet_count) * 100
+
+# Group by country and count tweets
+trump_grouped = trump_df.groupby('country')['tweet'].count().reset_index(name='trump_grouped')
+biden_grouped = biden_df.groupby('country')['tweet'].count().reset_index(name='biden_grouped')
+
+# Merge the grouped DataFrames on 'country'
+combined_df = pd.merge(trump_grouped, biden_grouped, on='country', how='outer')
+
+# Fill NaN values with 0
+combined_df.fillna(0, inplace=True)
+
+# Convert tweet counts to integers
+combined_df['trump_grouped'] = combined_df['trump_grouped'].astype(int)
+combined_df['biden_grouped'] = combined_df['biden_grouped'].astype(int)
+
+# Total counts
+combined_df['total_tweet_count'] = combined_df['trump_grouped'] + combined_df['biden_grouped']
+
+combined_df['trump_percentage'] = (combined_df['trump_grouped'] / combined_df['total_tweet_count'] * 100).round(2)
+combined_df['biden_percentage'] = (combined_df['biden_grouped'] / combined_df['total_tweet_count'] * 100).round(2)
+
+# Sort top 10 countries
+combined_df = combined_df.sort_values(by='total_tweet_count', ascending=False)
+
+# Function to get ISO Alpha-3 country code
+def get_country_code(country_name):
+    try:
+        # Use pycountry to get the country object
+        return pycountry.countries.lookup(country_name).alpha_3
+    except LookupError:
+        return None  # If the country name is not found, return None
+
+# Apply the function to the 'country' column to create a new 'country_code' column
+combined_df['country_code'] = combined_df['country'].apply(get_country_code)
+
+# Define a mapping for the missing country codes
+missing_country_codes = {
+    'Turkey': 'TUR',
+    'Russia': 'RUS',
+    'Jamaika': 'JAM',
+    'Palestinian Territory': 'PSE',
+    'Kosovo': 'XKX',  # Kosovo is often represented with 'XKX'
+    'The Bahamas': 'BHS',
+    'The Gambia': 'GMB',
+    'Congo-Brazzaville': 'COG',
+    'Vatican City': 'VAT',
+    'Falkland Islands': 'FLK',
+    'Democratic Republic of the Congo': 'COD',
+    'Cape Verde': 'CPV',
+    'East Timor': 'TLS'
+}
+
+# Fill in the missing country codes
+combined_df['country_code'] = combined_df.apply(
+    lambda row: missing_country_codes.get(row['country'], row['country_code']),
+    axis=1
+)
+
+# USA  top 10 state analysis
+usa_trump_grouped = usa_trump_df.groupby('state_code')['tweet'].count()
+usa_biden_grouped = usa_biden_df.groupby('state_code')['tweet'].count()
+
+usa_combined_df = pd.merge(usa_trump_grouped, usa_biden_grouped, on='state_code', how='outer')
+usa_combined_df = usa_combined_df.rename(columns={'tweet_x': 'trump_tweets', 'tweet_y': 'biden_tweets'})
+usa_combined_df = usa_combined_df.reset_index()
+usa_combined_df = pd.merge(usa_combined_df, usa_biden_grouped, on='state_code', how='outer')
+
+# NaN fill with  0
+usa_combined_df['trump_tweets'].fillna(0, inplace=True)
+
+usa_combined_df['trump_tweets'] = usa_combined_df['trump_tweets'].astype(int)
+
+usa_combined_df['total_tweets'] = usa_combined_df['trump_tweets'] + usa_combined_df['biden_tweets']
+usa_combined_df['total_tweets_overall'] = usa_combined_df['trump_tweets'].sum() + usa_combined_df['biden_tweets'].sum()
+
+usa_combined_df['trump_percentage'] = (usa_combined_df['trump_tweets'] / usa_combined_df['total_tweets'] * 100).round(2)
+usa_combined_df['biden_percentage'] = (usa_combined_df['biden_tweets'] / usa_combined_df['total_tweets'] * 100).round(2)
+
+usa_combined_df['usa_percentage_total'] = (usa_combined_df['total_tweets'] / usa_combined_df['total_tweets_overall'] * 100).round(2)
+
+usa_combined_df = usa_combined_df.sort_values(by='total_tweets', ascending=False)
+usa_combined_df.head(10)
 
 # Sidebar menu
 option = st.sidebar.selectbox("Select a feature", ["Homepage", "Exploratory Data Analysis", "Content & Data", "Key Word in Context"])
@@ -196,6 +279,14 @@ elif option == "Exploratory Data Analysis":
     if view3 == "USA.3":  # USA View
         trump_df['tweet_hour'] = usa_trump_df['created_at'].dt.hour
         biden_df['tweet_hour'] = usa_biden_df['created_at'].dt.hour
+        conclusion = f"""
+            <div style='text-align: justify;'>
+                In the USA dataset, tweet activity peaks between 01:00-02:00 AM, which could be related to
+                post-event discussions, late-night media coverage, or breaking news updates. These hours often
+                see active conversations around political events such as debate reactions or campaign
+                announcements, especially when critical moments occur late in the evening.  
+            </div>
+        """
     else:  # Global View
         trump_df['tweet_hour'] = trump_df['created_at'].dt.hour
         biden_df['tweet_hour'] = biden_df['created_at'].dt.hour
@@ -222,6 +313,158 @@ elif option == "Exploratory Data Analysis":
     # Display the plot in Streamlit
     st.pyplot(fig2, transparent=True)
 
+    # Additional Conclusion Section
+    conclusion = f"""
+        <div style='text-align: justify;'>
+            In the global dataset, tweet activity shows a significant spike between 16:00-17:00, marking the
+            first time that Joe Biden's tweet volume surpasses Donald Trump's. This time window likely
+            corresponds to moments when people worldwide are active on social media, particularly in the late
+            afternoon or after work hours. 
+        </div>
+    """
+
+    # Display the conclusion
+    st.markdown(conclusion, unsafe_allow_html=True)
+
+    # Adding space between the paragraph and the chart
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # Calculate color mapping based on percentage difference
+    combined_df['color'] = combined_df['trump_percentage'] - combined_df['biden_percentage']
+
+    # Create a choropleth map
+    fig = px.choropleth(
+        combined_df,
+        locations='country_code',  # Column with country ISO Alpha-3 codes
+        color='color',  # Column for the color scale
+        color_continuous_scale=[(1, 'red'), (0, 'blue')],
+        range_color=[-100, 100],  # Adjust based on your data
+        scope="world",  # Display the entire world
+        title='Biden vs Trump Tweet Percentages by Country',
+        hover_name='country_code',  # Show the country code on hover
+        hover_data={
+            'trump_percentage': True,  # Display Trump percentage
+            'biden_percentage': True,  # Display Biden percentage
+            'color': False  # Do not display the difference
+        }
+    )
+
+    # Update layout for better visualization
+    fig.update_geos(showcoastlines=True, coastlinecolor="Gray", showland=True, landcolor="white")
+
+    # Update layout for better visualization with a transparent background
+    fig.update_layout(
+        title_font=dict(size=16, color='white'),
+        paper_bgcolor='rgba(255, 255, 255, 0)',  # Set paper background color to transparent
+        geo=dict(bgcolor='rgba(255, 255, 255, 0)'),  # Set geo background color to transparent
+    )
+
+    # Display the figure in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+    # The top 10 countries based on total tweet counts
+    top_countries = combined_df.head(10)
+
+    # Set the position of bars on the x-axis
+    bar_width = 0.25
+    x = range(len(top_countries))
+
+    # Create a figure for the bar chart
+    plt.figure(figsize=(12, 6))
+
+    # Plot Trump tweets
+    plt.bar(x, top_countries['trump_grouped'], width=bar_width, label='Trump Tweets', color='red', align='center')
+
+    # Plot Biden tweets
+    plt.bar([p + bar_width for p in x], top_countries['biden_grouped'], width=bar_width, label='Biden Tweets', color='blue', align='center')
+
+    # Plot Total tweets
+    plt.bar([p + bar_width*2 for p in x], top_countries['total_tweet_count'], width=bar_width, label='Total Tweets', color='gray', align='center')
+
+    # Adding labels and title
+    plt.xlabel('Country', fontsize=14, color='white')
+    plt.ylabel('Tweet Count', fontsize=14, color='white')
+    plt.title('Top 10 Countries Tweet Counts: Trump vs Biden vs Total', fontsize=16, color='white', weight='bold')
+    plt.xticks([p + bar_width for p in x], top_countries['country'], rotation=45, color='white')
+    plt.legend(facecolor='white', fontsize=10)
+    plt.grid(color='grey', linestyle='--', linewidth=0.5)  # Add gridlines
+
+    # Change tick values to white
+    plt.tick_params(axis='x', colors='white')  # X-axis ticks
+    plt.tick_params(axis='y', colors='white')  # Y-axis ticks
+
+    # Streamlit display
+    st.pyplot(plt, transparent=True)
+
+    # Clear the figure after displaying
+    plt.clf()
+   
+    # Calculate the color mapping based on the percentage difference
+    usa_combined_df['color'] = usa_combined_df['trump_percentage'] - usa_combined_df['biden_percentage']
+
+    # Create a choropleth map
+    fig = px.choropleth(
+        usa_combined_df,
+        locationmode='USA-states',
+        locations='state_code',
+        color='color',
+        color_continuous_scale=[(1, 'red'), (0, 'blue')],
+        range_color=[-100, 100],  # Adjust this range based on your data
+        scope="usa",
+        title='Biden vs Trump Tweet Percentages by State',
+        hover_name='state_code',  # Show the state code on hover
+        hover_data={
+            'trump_percentage': True,  # Display Trump percentage
+            'biden_percentage': True,   # Display Biden percentage
+            'color': False              # Do not display the difference
+        }
+    )
+    # Update layout for better visualization with a transparent background
+    fig.update_layout(
+        title_font=dict(size=16, color='white'),
+        paper_bgcolor='rgba(255, 255, 255, 0)',  # Set paper background color to transparent
+        geo=dict(bgcolor='rgba(255, 255, 255, 0)'),  # Set geo background color to transparent
+    )
+
+    # Display the figure in Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Get the top 10 states based on total tweet counts
+    top_states = usa_combined_df.head(10)
+
+    # Set the position of bars on the x-axis
+    bar_width = 0.25
+    x = range(len(top_states))
+
+    # Create a figure for the bar chart
+    plt.figure(figsize=(12, 6))
+
+    # Plot Trump tweets
+    plt.bar(x, top_states['trump_tweets'], width=bar_width, label='Trump Tweets', color='red', align='center')
+
+    # Plot Biden tweets
+    plt.bar([p + bar_width for p in x], top_states['biden_tweets'], width=bar_width, label='Biden Tweets', color='blue', align='center')
+
+    # Plot Total tweets
+    plt.bar([p + bar_width*2 for p in x], top_states['total_tweets'], width=bar_width, label='Total Tweets', color='gray', align='center')
+
+    # Adding labels and title
+    plt.xlabel('State', fontsize=14, color='white')
+    plt.ylabel('Tweet Count', fontsize=14, color='white')
+    plt.title('Top 10 States Tweet Counts: Trump vs Biden vs Total', fontsize=16, color='white', weight='bold')
+    plt.xticks([p + bar_width for p in x], top_states['state_code'], rotation=45, color='white')
+    plt.legend(facecolor='white', fontsize=10)
+    plt.grid(color='grey', linestyle='--', linewidth=0.5)  # Add gridlines
+
+    # Change tick values to white
+    plt.tick_params(axis='x', colors='white')  # X-axis ticks
+    plt.tick_params(axis='y', colors='white')  # Y-axis ticks
+
+    # Streamlit display
+    st.pyplot(plt, transparent=True)
+
+    # Clear the figure after displaying
+    plt.clf()
 
 elif option == "Content & Data":
     # Content
