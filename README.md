@@ -41,7 +41,7 @@ After downloading the dataset, follow these steps:
 
 ```bash
 .
-├── app.py                      # Main Streamlit application
+├── app.py                       # Main Streamlit application
 ├── us_popularity_analysis.py    # US popularity analysis logic
 ├── imports.py                   # Importing necessary modules
 ├── data_cleaning.py             # Data cleaning functions
