@@ -3,7 +3,7 @@ from imports import *
 import eda  # Import the Exploratory Data Analysis module
 import world_popularity_analysis  # Import the World Popularity Analysis module
 import us_popularity_analysis  # Import the US Popularity Analysis module
-import sentimental_data_analysis  # Import the Sentimental Data Analysis module
+# import sentimental_data_analysis  # Import the Sentimental Data Analysis module
 import dataset # Import the Dataset module
 
 
@@ -65,8 +65,8 @@ elif st.session_state.page == 'World Popularity Analysis':
 elif st.session_state.page == 'US Popularity Analysis':
     us_popularity_analysis.run_us_popularity_analysis(trump_df, biden_df)  # Call the function from us_popularity_analysis.py
 
-elif st.session_state.page == 'Sentimental Data Analysis':
-    sentimental_data_analysis.run_sentimental_data_analysis(trump_df, biden_df)  # Call the function from sentimental_data_analysis.py
+# elif st.session_state.page == 'Sentimental Data Analysis':
+#     sentimental_data_analysis.run_sentimental_data_analysis(trump_df, biden_df)  # Call the function from sentimental_data_analysis.py
     
 elif st.session_state.page == 'Dataset':
     dataset.run_dataset()

@@ -1,5 +1,5 @@
 # sentimental_data_analysis.py
-from imports import *
+# from imports import *
 
 def run_sentimental_data_analysis(trump_df, biden_df):
     # Load the dataset
@@ -42,3 +42,11 @@ def run_sentimental_data_analysis(trump_df, biden_df):
     # Display the DataFrame with the predictions
     # trump_df[['tweet', 'predicted_language']]
     st.dataframe(trump_df.groupby('predicted_language')['tweet'].count())
+
+    # Create a sample TextBlob
+    english_tweets = trump_df[trump_df['predicted_language'] == 'English']
+    # Get sentiment
+    english_tweets['sentiment'] = english_tweets['tweet'].apply(lambda tweet: TextBlob(tweet).sentiment.polarity)
+
+    # Check the results
+    st.dataframe(english_tweets[['tweet', 'sentiment']].head(10))
