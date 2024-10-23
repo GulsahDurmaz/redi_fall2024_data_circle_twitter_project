@@ -13,3 +13,12 @@ from data_cleaning import *
 from percentage_calculating import *
 from choropleth_map import *
 from percentage_calculating_state import *
+
+# sentimental_data_analysis.py
+
+import re # Data cleaning
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score
