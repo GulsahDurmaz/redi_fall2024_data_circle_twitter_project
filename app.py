@@ -15,8 +15,8 @@ st.set_page_config(page_title="2020 US Presidential Election Dashboard",
                    initial_sidebar_state="expanded")
 
 
-trump_df = load_data(r"csv/donaldtrump.csv")
-biden_df = load_data(r"csv/joebiden.csv")
+# trump_df = load_data(r"csv/donaldtrump.csv")
+# biden_df = load_data(r"csv/joebiden.csv")
 
 # Apply custom styles
 with open('style.css') as f:
