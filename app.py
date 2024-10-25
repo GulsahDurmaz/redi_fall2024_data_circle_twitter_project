@@ -29,7 +29,7 @@ def load_data(file):
     return data
 
 trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
-biden_df = load_data(r"/csv/hashtag_joebiden.csv")
+biden_df = load_data(r"csv/hashtag_joebiden.csv")
 
 # Clean data
 trump_df = clean_data(trump_df)
