@@ -1,11 +1,12 @@
 # app.py
+
 from imports import *
+# from data_loader import load_data # Import Data Loader module
 import eda  # Import the Exploratory Data Analysis module
 import world_popularity_analysis  # Import the World Popularity Analysis module
 import us_popularity_analysis  # Import the US Popularity Analysis module
 # import sentimental_data_analysis  # Import the Sentimental Data Analysis module
 import dataset # Import the Dataset module
-
 
 # Configure the Streamlit page
 st.set_page_config(page_title="2020 US Presidential Election Dashboard",
@@ -13,41 +14,13 @@ st.set_page_config(page_title="2020 US Presidential Election Dashboard",
                    page_icon=":bar_chart:",
                    initial_sidebar_state="expanded")
 
+trump_df, biden_df = load_and_clean_data()
+
 # Apply custom styles
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 st.sidebar.header('US Presidential Election Dashboard `2020`')
-
-### Load the dataframes
-# @st.cache_data
-# def load_data(file):
-#     data = pd.read_csv(file, encoding='utf8', lineterminator='\n')
-    
-#     # Converting date values (data type: object) to datetime format
-#     data['created_at'] = pd.to_datetime(data['created_at'])
-#     return data
-
-# trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
-# biden_df = load_data(r"csv/hashtag_joebiden.csv")
-
-
-
-def load_data(file):
-    if not os.path.exists(file):
-        print(f"File {file} not found.")
-        return pd.DataFrame()  # Return an empty DataFrame or handle as needed
-    data = pd.read_csv(file, encoding='utf-8', lineterminator='\n')
-    if 'created_at' in data.columns:
-        data['created_at'] = pd.to_datetime(data['created_at'], errors='coerce')
-    return data
-
-trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
-biden_df = load_data(r"csv/hashtag_joebiden.csv")
-
-# Clean data
-trump_df = clean_data(trump_df)
-biden_df = clean_data(biden_df)
 
 # Initialize page state
 if 'page' not in st.session_state:
