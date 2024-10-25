@@ -26,37 +26,37 @@ st.sidebar.header('US Presidential Election Dashboard `2020`')
 if 'page' not in st.session_state:
     st.session_state.page = 'Exploratory Data Analysis'  # Default page
 
-# Sidebar buttons for page navigation
-if st.sidebar.button("Exploratory Data Analysis"):
-    st.session_state.page = 'Exploratory Data Analysis'
+# # Sidebar buttons for page navigation
+# if st.sidebar.button("Exploratory Data Analysis"):
+#     st.session_state.page = 'Exploratory Data Analysis'
 
-if st.sidebar.button("World Popularity Analysis"):
-    st.session_state.page = 'World Popularity Analysis'
+# if st.sidebar.button("World Popularity Analysis"):
+#     st.session_state.page = 'World Popularity Analysis'
 
-if st.sidebar.button("US Popularity Analysis"):
-    st.session_state.page = 'US Popularity Analysis'
+# if st.sidebar.button("US Popularity Analysis"):
+#     st.session_state.page = 'US Popularity Analysis'
 
-if st.sidebar.button("Sentimental Data Analysis"):
-    st.session_state.page = 'Sentimental Data Analysis'
+# if st.sidebar.button("Sentimental Data Analysis"):
+#     st.session_state.page = 'Sentimental Data Analysis'
 
-if st.sidebar.button("Dataset"):
-    st.session_state.page = 'Dataset'
+# if st.sidebar.button("Dataset"):
+#     st.session_state.page = 'Dataset'
 
 # Display content based on the active page
 if st.session_state.page == 'Exploratory Data Analysis':
     eda.run_exploratory_data_analysis(trump_df, biden_df)  # Call the function from eda.py
 
-elif st.session_state.page == 'World Popularity Analysis':
-    world_popularity_analysis.run_world_popularity_analysis(trump_df, biden_df)  # Call the function from world_popularity_analysis.py
+# elif st.session_state.page == 'World Popularity Analysis':
+#     world_popularity_analysis.run_world_popularity_analysis(trump_df, biden_df)  # Call the function from world_popularity_analysis.py
 
-elif st.session_state.page == 'US Popularity Analysis':
-    us_popularity_analysis.run_us_popularity_analysis(trump_df, biden_df)  # Call the function from us_popularity_analysis.py
+# elif st.session_state.page == 'US Popularity Analysis':
+#     us_popularity_analysis.run_us_popularity_analysis(trump_df, biden_df)  # Call the function from us_popularity_analysis.py
 
-# elif st.session_state.page == 'Sentimental Data Analysis':
-#     sentimental_data_analysis.run_sentimental_data_analysis(trump_df, biden_df)  # Call the function from sentimental_data_analysis.py
+# # elif st.session_state.page == 'Sentimental Data Analysis':
+# #     sentimental_data_analysis.run_sentimental_data_analysis(trump_df, biden_df)  # Call the function from sentimental_data_analysis.py
     
-elif st.session_state.page == 'Dataset':
-    dataset.run_dataset()
+# elif st.session_state.page == 'Dataset':
+#     dataset.run_dataset()
 
 # Sidebar footer
 st.sidebar.markdown('''
