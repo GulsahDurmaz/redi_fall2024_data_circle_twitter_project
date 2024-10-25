@@ -9,6 +9,8 @@ import plotly.express as px
 import pycountry
 import plost
 
+import os
+
 from data_cleaning import *
 from percentage_calculating import *
 from choropleth_map import *

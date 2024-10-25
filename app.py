@@ -20,12 +20,26 @@ with open('style.css') as f:
 st.sidebar.header('US Presidential Election Dashboard `2020`')
 
 ### Load the dataframes
-@st.cache_data
-def load_data(file):
-    data = pd.read_csv(file, encoding='utf8', lineterminator='\n')
+# @st.cache_data
+# def load_data(file):
+#     data = pd.read_csv(file, encoding='utf8', lineterminator='\n')
     
-    # Converting date values (data type: object) to datetime format
-    data['created_at'] = pd.to_datetime(data['created_at'])
+#     # Converting date values (data type: object) to datetime format
+#     data['created_at'] = pd.to_datetime(data['created_at'])
+#     return data
+
+# trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
+# biden_df = load_data(r"csv/hashtag_joebiden.csv")
+
+
+
+def load_data(file):
+    if not os.path.exists(file):
+        print(f"File {file} not found.")
+        return pd.DataFrame()  # Return an empty DataFrame or handle as needed
+    data = pd.read_csv(file, encoding='utf-8', lineterminator='\n')
+    if 'created_at' in data.columns:
+        data['created_at'] = pd.to_datetime(data['created_at'], errors='coerce')
     return data
 
 trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
