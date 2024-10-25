@@ -28,8 +28,8 @@ def load_data(file):
     data['created_at'] = pd.to_datetime(data['created_at'])
     return data
 
-trump_df = load_data(r"/Users/gulsah/Desktop/REDI/redi_fall2024_data_circle_twitter_project/csv/hashtag_donaldtrump.csv")
-biden_df = load_data(r"/Users/gulsah/Desktop/REDI/redi_fall2024_data_circle_twitter_project/csv/hashtag_joebiden.csv")
+trump_df = load_data(r"csv/hashtag_donaldtrump.csv")
+biden_df = load_data(r"/csv/hashtag_joebiden.csv")
 
 # Clean data
 trump_df = clean_data(trump_df)
