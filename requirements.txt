@@ -6,4 +6,3 @@ seaborn
 plotly
 pycountry
 plost
-os
