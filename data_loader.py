@@ -1,6 +1,7 @@
 # data_loader.py
 from imports import *
 
+@st.cache_data  # Streamlit caching
 def load_data(file):
     if not os.path.exists(file):
         print(f"File {file} not found.")

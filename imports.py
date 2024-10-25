@@ -11,7 +11,6 @@ import plost
 
 import os
 
-from main import *
 from data_loader import *
 from data_cleaning import *
 from percentage_calculating import *
