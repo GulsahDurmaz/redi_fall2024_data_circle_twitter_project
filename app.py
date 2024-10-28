@@ -1,5 +1,4 @@
 # app.py
-
 from imports import *
 # from data_loader import load_data # Import Data Loader module
 import eda  # Import the Exploratory Data Analysis module
