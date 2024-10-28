@@ -14,8 +14,29 @@ st.set_page_config(page_title="2020 US Presidential Election Dashboard",
                    initial_sidebar_state="expanded")
 
 
-trump_df = load_data(r"csv/donaldtrump.csv")
-biden_df = load_data(r"csv/joebiden.csv")
+# File ID from the shareable link
+file_id_biden = '1UWrfKj-YtbFwsixUs-SG4U35QncgpONI'
+url = f'https://drive.google.com/uc?id={file_id_biden}'
+
+# Download the CSV file
+output_biden = 'joebiden.csv'
+gdown.download(url, output_biden, quiet=False)
+
+# Load the CSV into pandas
+biden_df = pd.read_csv(output_biden, encoding='utf-8', lineterminator='\n')
+
+file_id_trump = '1Q5XKzaaHTXrXIT_W2kWyBkTSmWg4uANU'
+url = f'https://drive.google.com/uc?id={file_id_trump}' 
+
+# Download the CSV file
+output_trump = 'donaldtrump.csv'
+gdown.download(url, output_trump, quiet=False)
+
+# Load the CSV into pandas
+trump_df = pd.read_csv(output_trump, encoding='utf-8', lineterminator='\n')
+
+# trump_df = load_data(r"csv/donaldtrump.csv")
+# biden_df = load_data(r"csv/joebiden.csv")
 
 # Apply custom styles
 with open('style.css') as f:
