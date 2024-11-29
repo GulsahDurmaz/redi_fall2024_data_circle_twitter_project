@@ -2,6 +2,8 @@
 
 This project is a Streamlit-based web application that analyzes tweets related to the 2020 US Presidential Election. It allows users to explore and visualize the popularity of candidates and sentiment across different states.
 
+The project employs libraries such as streamlit, pandas, numpy, matplotlib, seaborn, plotly, pycountry, and plost. You can access the dashboard [on Streamlit](https://gulsahdurmaz-streamlit-app-twitter-project-main-pybjne.streamlit.app/). (Please use Google Chrome for a faster experience.)
+
 ## Dataset
 
 To view the dashboard, you need to download the dataset used in this project.
